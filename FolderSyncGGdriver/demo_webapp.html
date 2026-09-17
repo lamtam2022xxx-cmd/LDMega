@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LDMega - Thu Chi Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #4285f4;
+            --success: #34a853;
+            --danger: #ea4335;
+            --warning: #fbbc04;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #202124;
+            --text-light: #5f6368;
+            --border: #dadce0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), #1a73e8);
+            color: white;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-sub {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-light);
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .nav-tab:hover {
+            background: #f1f3f4;
+        }
+
+        .nav-tab .tab-icon {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        /* Tab Content */
+        .tab-content { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .summary-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card .amount {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .summary-card .amount.income { color: var(--success); }
+        .summary-card .amount.expense { color: var(--danger); }
+        .summary-card .amount.balance { color: var(--primary); }
+
+        .summary-card .change {
+            font-size: 11px;
+            margin-top: 4px;
+            color: var(--text-light);
+        }
+
+        /* Form */
+        .form-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+
+        .form-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .type-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .type-btn.income.active {
+            border-color: var(--success);
+            background: #e6f4ea;
+            color: var(--success);
+        }
+
+        .type-btn.expense.active {
+            border-color: var(--danger);
+            background: #fce8e6;
+            color: var(--danger);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .submit-btn.income { background: var(--success); }
+        .submit-btn.expense { background: var(--danger); }
+        .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .submit-btn:active { transform: translateY(0); }
+
+        /* Transaction List */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title .badge {
+            font-size: 11px;
+            background: #e8eaed;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: var(--text-light);
+        }
+
+        .transaction-list {
+            list-style: none;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+            transition: transform 0.1s;
+        }
+
+        .transaction-item:active {
+            transform: scale(0.98);
+        }
+
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .tx-icon.income { background: #e6f4ea; }
+        .tx-icon.expense { background: #fce8e6; }
+
+        .tx-info { flex: 1; min-width: 0; }
+
+        .tx-name {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tx-category {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .tx-amount {
+            font-weight: 600;
+            font-size: 15px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .tx-amount.income { color: var(--success); }
+        .tx-amount.expense { color: var(--danger); }
+
+        .tx-date {
+            font-size: 11px;
+            color: var(--text-light);
+            text-align: right;
+        }
+
+        /* Chart placeholder */
+        .chart-container {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .chart-bar-group {
+            margin-bottom: 12px;
+        }
+
+        .chart-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .chart-bar {
+            height: 24px;
+            background: #e8eaed;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+
+        .chart-bar-fill.income { background: var(--success); }
+        .chart-bar-fill.expense { background: var(--danger); }
+        .chart-bar-fill.cat1 { background: #4285f4; }
+        .chart-bar-fill.cat2 { background: #ea4335; }
+        .chart-bar-fill.cat3 { background: #fbbc04; }
+        .chart-bar-fill.cat4 { background: #34a853; }
+        .chart-bar-fill.cat5 { background: #ff6d01; }
+
+        /* Filter */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1.5px solid var(--border);
+            background: white;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Settings */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .setting-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .setting-desc {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .setting-value {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Permission badges */
+        .perm-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .perm-badge.admin { background: #fce8e6; color: var(--danger); }
+        .perm-badge.editor { background: #e6f4ea; color: var(--success); }
+        .perm-badge.viewer { background: #e8eaed; color: var(--text-light); }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #323232;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 200;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state .text { font-size: 14px; }
+
+        /* Month picker */
+        .month-picker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            background: var(--card);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .month-picker button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #e8eaed;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .month-picker .month-label {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .summary-cards { grid-template-columns: repeat(3, 1fr); }
+            .summary-card.full-width { grid-column: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>💰 LDMega Thu Chi</h1>
+        <div class="header-sub">Quản lý tài chính đơn giản</div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('dashboard')">
+            <span class="tab-icon">📊</span>
+            Tổng quan
+        </button>
+        <button class="nav-tab" onclick="switchTab('add')">
+            <span class="tab-icon">➕</span>
+            Nhập liệu
+        </button>
+        <button class="nav-tab" onclick="switchTab('history')">
+            <span class="tab-icon">📋</span>
+            Lịch sử
+        </button>
+        <button class="nav-tab" onclick="switchTab('settings')">
+            <span class="tab-icon">⚙️</span>
+            Cài đặt
+        </button>
+    </div>
+
+    <!-- ===== TAB: DASHBOARD ===== -->
+    <div id="tab-dashboard" class="tab-content active">
+        <div class="month-picker">
+            <button onclick="changeMonth(-1)">◀</button>
+            <span class="month-label" id="currentMonth">Tháng 9/2026</span>
+            <button onclick="changeMonth(1)">▶</button>
+        </div>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="label">💰 Tổng Thu</div>
+                <div class="amount income" id="totalIncome">45,000,000đ</div>
+                <div class="change">↑ 12% so với tháng trước</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">💸 Tổng Chi</div>
+                <div class="amount expense" id="totalExpense">32,500,000đ</div>
+                <div class="change">↓ 5% so với tháng trước</div>
+            </div>
+            <div class="summary-card full-width">
+                <div class="label">📈 Số Dư</div>
+                <div class="amount balance" id="balance">12,500,000đ</div>
+                <div class="change">Tiết kiệm được 27.8% thu nhập</div>
+            </div>
+        </div>
+
+        <!-- Chart: Thu vs Chi -->
+        <div class="chart-container">
+            <div class="chart-title">📊 Thu vs Chi theo tháng</div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>Tháng 7</span>
+                    <span>38tr / 30tr</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill income" style="width: 76%"></div>
+                </div>
+            </div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>Tháng 8</span>
+                    <span>40tr / 34tr</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill income" style="width: 80%"></div>
+                </div>
+            </div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>Tháng 9</span>
+                    <span>45tr / 32.5tr</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill income" style="width: 90%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart: Chi tiêu theo danh mục -->
+        <div class="chart-container">
+            <div class="chart-title">🏷️ Chi tiêu theo danh mục</div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>🏠 Tiền nhà</span>
+                    <span>8,000,000đ</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill cat1" style="width: 80%"></div>
+                </div>
+            </div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>🍜 Ăn uống</span>
+                    <span>6,500,000đ</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill cat2" style="width: 65%"></div>
+                </div>
+            </div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>🚗 Đi lại</span>
+                    <span>4,000,000đ</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill cat3" style="width: 40%"></div>
+                </div>
+            </div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>🛒 Mua sắm</span>
+                    <span>3,500,000đ</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill cat4" style="width: 35%"></div>
+                </div>
+            </div>
+            <div class="chart-bar-group">
+                <div class="chart-bar-label">
+                    <span>🎮 Giải trí</span>
+                    <span>2,500,000đ</span>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-bar-fill cat5" style="width: 25%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Giao dịch gần đây -->
+        <div class="section-title">
+            Giao dịch gần đây
+            <span class="badge">Hôm nay</span>
+        </div>
+        <ul class="transaction-list" id="recentTransactions">
+            <!-- Rendered by JS -->
+        </ul>
+    </div>
+
+    <!-- ===== TAB: ADD ===== -->
+    <div id="tab-add" class="tab-content">
+        <div class="form-card">
+            <div class="form-title">📝 Nhập giao dịch mới</div>
+            
+            <div class="type-toggle">
+                <button class="type-btn expense active" onclick="setType('expense')">
+                    💸 Chi tiêu
+                </button>
+                <button class="type-btn income" onclick="setType('income')">
+                    💰 Thu nhập
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Số tiền (VNĐ) *</label>
+                <input type="number" id="amount" placeholder="Nhập số tiền..." inputmode="numeric">
+            </div>
+
+            <div class="form-group">
+                <label>Danh mục *</label>
+                <select id="category">
+                    <option value="">-- Chọn danh mục --</option>
+                    <optgroup label="Chi tiêu" id="expenseCategories">
+                        <option>🍜 Ăn uống</option>
+                        <option>🏠 Tiền nhà</option>
+                        <option>🚗 Đi lại</option>
+                        <option>💡 Điện nước</option>
+                        <option>📱 Điện thoại/Internet</option>
+                        <option>🛒 Mua sắm</option>
+                        <option>🏥 Y tế</option>
+                        <option>🎮 Giải trí</option>
+                        <option>📚 Học tập</option>
+                        <option>🔧 Khác</option>
+                    </optgroup>
+                    <optgroup label="Thu nhập" id="incomeCategories" style="display:none">
+                        <option>💼 Lương</option>
+                        <option>💵 Thưởng</option>
+                        <option>📈 Đầu tư</option>
+                        <option>🏪 Kinh doanh</option>
+                        <option>🎁 Được tặng</option>
+                        <option>🔧 Khác</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Ngày</label>
+                <input type="date" id="txDate" value="">
+            </div>
+
+            <div class="form-group">
+                <label>Người thực hiện</label>
+                <select id="person">
+                    <option>Sơn Trần</option>
+                    <option>Khác</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Ghi chú</label>
+                <textarea id="note" placeholder="Ghi chú thêm (không bắt buộc)..."></textarea>
+            </div>
+
+            <button class="submit-btn expense" id="submitBtn" onclick="submitTransaction()">
+                💾 Lưu giao dịch
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== TAB: HISTORY ===== -->
+    <div id="tab-history" class="tab-content">
+        <div class="filter-bar">
+            <button class="filter-chip active" onclick="filterHistory('all', this)">Tất cả</button>
+            <button class="filter-chip" onclick="filterHistory('income', this)">💰 Thu</button>
+            <button class="filter-chip" onclick="filterHistory('expense', this)">💸 Chi</button>
+            <button class="filter-chip" onclick="filterHistory('food', this)">🍜 Ăn uống</button>
+            <button class="filter-chip" onclick="filterHistory('transport', this)">🚗 Đi lại</button>
+        </div>
+
+        <div class="section-title">
+            Tháng 9/2026
+            <span class="badge" id="txCount">12 giao dịch</span>
+        </div>
+
+        <ul class="transaction-list" id="historyList">
+            <!-- Rendered by JS -->
+        </ul>
+    </div>
+
+    <!-- ===== TAB: SETTINGS ===== -->
+    <div id="tab-settings" class="tab-content">
+        <div class="section-title">🔐 Phân quyền</div>
+        
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Sơn Trần</div>
+                <div class="setting-desc">lamtam2022xxx@gmail.com</div>
+            </div>
+            <span class="perm-badge admin">Admin</span>
+        </div>
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Kế toán A</div>
+                <div class="setting-desc">ketoan@example.com</div>
+            </div>
+            <span class="perm-badge editor">Editor</span>
+        </div>
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Quản lý B</div>
+                <div class="setting-desc">manager@example.com</div>
+            </div>
+            <span class="perm-badge viewer">Viewer</span>
+        </div>
+
+        <br>
+        <div class="section-title">⚙️ Cài đặt chung</div>
+
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Ngân sách tháng</div>
+                <div class="setting-desc">Cảnh báo khi chi vượt mức</div>
+            </div>
+            <div class="setting-value">35,000,000đ</div>
+        </div>
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Báo cáo email</div>
+                <div class="setting-desc">Gửi báo cáo cuối tuần</div>
+            </div>
+            <div class="setting-value">Bật ✅</div>
+        </div>
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Google Sheet</div>
+                <div class="setting-desc">Mở file dữ liệu gốc</div>
+            </div>
+            <div class="setting-value">Mở →</div>
+        </div>
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Xuất dữ liệu</div>
+                <div class="setting-desc">Tải file Excel/CSV</div>
+            </div>
+            <div class="setting-value">Tải ↓</div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">✅ Đã lưu giao dịch!</div>
+
+    <script>
+        // Demo data
+        const transactions = [
+            { type: 'expense', name: 'Cà phê sáng', category: '🍜 Ăn uống', amount: 45000, date: '07/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Grab đi làm', category: '🚗 Đi lại', amount: 85000, date: '07/09', person: 'Sơn Trần' },
+            { type: 'income', name: 'Lương tháng 9', category: '💼 Lương', amount: 25000000, date: '05/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Tiền nhà T9', category: '🏠 Tiền nhà', amount: 8000000, date: '05/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Siêu thị tuần', category: '🛒 Mua sắm', amount: 1250000, date: '04/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Tiền điện', category: '💡 Điện nước', amount: 650000, date: '03/09', person: 'Sơn Trần' },
+            { type: 'income', name: 'Freelance design', category: '💼 Lương', amount: 5000000, date: '03/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Ăn tối nhóm', category: '🍜 Ăn uống', amount: 350000, date: '02/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Netflix', category: '🎮 Giải trí', amount: 260000, date: '01/09', person: 'Sơn Trần' },
+            { type: 'income', name: 'Thưởng KPI', category: '💵 Thưởng', amount: 15000000, date: '01/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Xăng xe', category: '🚗 Đi lại', amount: 200000, date: '01/09', person: 'Sơn Trần' },
+            { type: 'expense', name: 'Điện thoại', category: '📱 Điện thoại/Internet', amount: 199000, date: '01/09', person: 'Sơn Trần' },
+        ];
+
+        let currentType = 'expense';
+
+        // Format currency
+        function formatMoney(amount) {
+            return amount.toLocaleString('vi-VN') + 'đ';
+        }
+
+        // Render transactions
+        function renderTransactions(list, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = list.map(tx => `
+                <li class="transaction-item">
+                    <div class="tx-icon ${tx.type}">
+                        ${tx.type === 'income' ? '📥' : '📤'}
+                    </div>
+                    <div class="tx-info">
+                        <div class="tx-name">${tx.name}</div>
+                        <div class="tx-category">${tx.category} • ${tx.person}</div>
+                    </div>
+                    <div>
+                        <div class="tx-amount ${tx.type}">
+                            ${tx.type === 'income' ? '+' : '-'}${formatMoney(tx.amount)}
+                        </div>
+                        <div class="tx-date">${tx.date}</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        // Switch tabs
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            event.target.closest('.nav-tab').classList.add('active');
+        }
+
+        // Toggle income/expense type
+        function setType(type) {
+            currentType = type;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.type-btn.' + type).classList.add('active');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.className = 'submit-btn ' + type;
+            submitBtn.textContent = type === 'income' ? '💾 Lưu khoản thu' : '💾 Lưu khoản chi';
+
+            // Toggle category optgroups
+            document.getElementById('expenseCategories').style.display = type === 'expense' ? '' : 'none';
+            document.getElementById('incomeCategories').style.display = type === 'income' ? '' : 'none';
+            document.getElementById('category').selectedIndex = 0;
+        }
+
+        // Submit transaction
+        function submitTransaction() {
+            const amount = document.getElementById('amount').value;
+            if (!amount) {
+                showToast('⚠️ Vui lòng nhập số tiền!');
+                return;
+            }
+
+            const category = document.getElementById('category').value;
+            if (!category) {
+                showToast('⚠️ Vui lòng chọn danh mục!');
+                return;
+            }
+
+            // Add to list
+            const newTx = {
+                type: currentType,
+                name: document.getElementById('note').value || category,
+                category: category,
+                amount: parseInt(amount),
+                date: '07/09',
+                person: document.getElementById('person').value
+            };
+
+            transactions.unshift(newTx);
+            renderTransactions(transactions.slice(0, 5), 'recentTransactions');
+            renderTransactions(transactions, 'historyList');
+            document.getElementById('txCount').textContent = transactions.length + ' giao dịch';
+
+            // Reset form
+            document.getElementById('amount').value = '';
+            document.getElementById('note').value = '';
+            document.getElementById('category').selectedIndex = 0;
+
+            showToast(currentType === 'income' ? '✅ Đã lưu khoản thu!' : '✅ Đã lưu khoản chi!');
+        }
+
+        // Filter history
+        function filterHistory(filter, btn) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+
+            let filtered = transactions;
+            if (filter === 'income') filtered = transactions.filter(t => t.type === 'income');
+            if (filter === 'expense') filtered = transactions.filter(t => t.type === 'expense');
+            if (filter === 'food') filtered = transactions.filter(t => t.category.includes('Ăn uống'));
+            if (filter === 'transport') filtered = transactions.filter(t => t.category.includes('Đi lại'));
+
+            renderTransactions(filtered, 'historyList');
+            document.getElementById('txCount').textContent = filtered.length + ' giao dịch';
+        }
+
+        // Change month
+        function changeMonth(dir) {
+            showToast('📅 Đây là bản demo - chỉ có dữ liệu tháng 9');
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // Set today's date
+        document.getElementById('txDate').valueAsDate = new Date();
+
+        // Initial render
+        renderTransactions(transactions.slice(0, 5), 'recentTransactions');
+        renderTransactions(transactions, 'historyList');
+    </script>
+</body>
+</html>
