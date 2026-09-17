@@ -28,9 +28,9 @@ print_header() {
 
 deploy_gas() {
     echo -e "${BLUE}▶ Đang chuẩn bị đẩy code lên Google Apps Script (GAS)...${NC}"
-    cd "$ROOT_DIR/apps_script"
+    cd "$ROOT_DIR/Conection/apps_script"
     if [ ! -f ".clasp.json" ]; then
-        echo -e "${YELLOW}⚠️ Chưa tìm thấy apps_script/.clasp.json!${NC}"
+        echo -e "${YELLOW}⚠️ Chưa tìm thấy Conection/apps_script/.clasp.json!${NC}"
         echo "Hãy sao chép file .clasp.json.example thành .clasp.json và điền scriptId dự án của bạn."
         exit 1
     fi
@@ -40,14 +40,14 @@ deploy_gas() {
 
 deploy_cf_be() {
     echo -e "${BLUE}▶ Đang chuẩn bị deploy Cloudflare Worker (Backend)...${NC}"
-    cd "$ROOT_DIR/cloudflare/backend"
+    cd "$ROOT_DIR/Conection/cloudflare/backend"
     npx wrangler deploy
     echo -e "${GREEN}✅ Đã deploy thành công Cloudflare Worker Backend!${NC}"
 }
 
 deploy_cf_fe() {
     echo -e "${BLUE}▶ Đang chuẩn bị deploy Cloudflare Pages (Frontend)...${NC}"
-    cd "$ROOT_DIR/cloudflare/frontend"
+    cd "$ROOT_DIR/Conection/cloudflare/frontend"
     npx wrangler pages deploy public --project-name ldmega-frontend
     echo -e "${GREEN}✅ Đã deploy thành công Cloudflare Pages Frontend!${NC}"
 }
@@ -60,12 +60,12 @@ run_tests() {
 show_status() {
     print_header
     echo -e "${YELLOW}📍 DANH MỤC THƯ MỤC & ĐIỂM ĐẾN DEPLOY:${NC}"
-    echo -e "  1. [apps_script/]          -> ${GREEN}Google Apps Script${NC} (doGet, doPost, Drive, Sheets)"
-    echo -e "  2. [cloudflare/backend/]   -> ${GREEN}Cloudflare Worker${NC} (Edge API, Telegram Webhook, Groq)"
-    echo -e "  3. [cloudflare/frontend/]  -> ${GREEN}Cloudflare Pages${NC} (Dashboard Web App)"
-    echo -e "  4. [Conection/]            -> ${GREEN}5 Dịch vụ sẵn sàng${NC} (Groq, Drive, Telegram, CF, GAS)"
-    echo -e "  5. [HR/]                   -> ${GREEN}Module Quản lý Nhân sự${NC}"
-    echo -e "  6. [AutoSync/]             -> ${GREEN}Tự động đồng bộ Git${NC}"
+    echo -e "  1. [Conection/apps_script/]          -> ${GREEN}Google Apps Script${NC} (doGet, doPost, Drive, Sheets)"
+    echo -e "  2. [Conection/cloudflare/backend/]   -> ${GREEN}Cloudflare Worker${NC} (Edge API, Telegram Webhook, Groq)"
+    echo -e "  3. [Conection/cloudflare/frontend/]  -> ${GREEN}Cloudflare Pages${NC} (Dashboard Web App)"
+    echo -e "  4. [Conection/]                      -> ${GREEN}5 Dịch vụ sẵn sàng${NC} (Groq, Drive, Telegram, CF, GAS)"
+    echo -e "  5. [HR/]                             -> ${GREEN}Module Quản lý Nhân sự${NC}"
+    echo -e "  6. [AutoSync/]                       -> ${GREEN}Tự động đồng bộ Git${NC}"
     echo ""
 }
 

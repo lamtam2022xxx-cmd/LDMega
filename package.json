@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "LDMega - Architecture with Cloudflare, Google Apps Script, and AI Connectors",
   "scripts": {
-    "deploy:gas": "cd apps_script && npx @google/clasp push",
-    "deploy:cf:be": "cd cloudflare/backend && npx wrangler deploy",
-    "deploy:cf:fe": "cd cloudflare/frontend && npx wrangler pages deploy public --project-name ldmega-frontend",
-    "dev:cf:be": "cd cloudflare/backend && npx wrangler dev",
-    "test:connectors": "python3 connectors/test_connectors.py"
+    "deploy:gas": "cd Conection/apps_script && npx @google/clasp push",
+    "deploy:cf:be": "cd Conection/cloudflare/backend && npx wrangler deploy",
+    "deploy:cf:fe": "cd Conection/cloudflare/frontend && npx wrangler pages deploy public --project-name ldmega-frontend",
+    "dev:cf:be": "cd Conection/cloudflare/backend && npx wrangler dev",
+    "test:connectors": "python3 Conection/test_connections.py"
   },
   "devDependencies": {
     "@google/clasp": "^2.4.2",

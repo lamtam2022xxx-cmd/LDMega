@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'apps_script/**'
+      - 'Conection/apps_script/**'
   workflow_dispatch:
 
 jobs:
@@ -36,9 +36,9 @@ jobs:
         env:
           GAS_SCRIPT_ID: ${{ secrets.GAS_SCRIPT_ID }}
         run: |
-          echo "{\"scriptId\":\"$GAS_SCRIPT_ID\",\"rootDir\":\".\"}" > apps_script/.clasp.json
+          echo "{\"scriptId\":\"$GAS_SCRIPT_ID\",\"rootDir\":\".\"}" > Conection/apps_script/.clasp.json
 
       - name: Push to Google Apps Script
         run: |
-          cd apps_script
+          cd Conection/apps_script
           clasp push --force

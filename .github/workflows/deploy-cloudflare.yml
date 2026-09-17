@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'cloudflare/**'
+      - 'Conection/cloudflare/**'
   workflow_dispatch:
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'cloudflare/backend'
+          workingDirectory: 'Conection/cloudflare/backend'
 
   deploy-pages:
     name: Deploy Cloudflare Pages (Frontend)
@@ -46,4 +46,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy public --project-name=ldmega-frontend
-          workingDirectory: 'cloudflare/frontend'
+          workingDirectory: 'Conection/cloudflare/frontend'
