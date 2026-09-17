@@ -24,3 +24,5 @@ token.json
 Thumbs.db
 .vscode/
 .idea/
+*.log
+*.pid
