@@ -1,0 +1,12 @@
+name = "ldmega-backend"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+
+[vars]
+GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile"
+ENVIRONMENT = "production"
+
+# Secrets cần thiết lập qua: npx wrangler secret put <TÊN_SECRET>
+# - GROQ_API_KEY
+# - TELEGRAM_BOT_TOKEN
+# - TELEGRAM_CHAT_ID
