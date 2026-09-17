@@ -4,42 +4,40 @@ Thư mục này quản lý toàn bộ tính năng tự động đồng bộ code
 
 ---
 
+## ✨ Tính năng nổi bật
+
+* **Hỏi ý kiến trước khi tải**: Mỗi khi có thay đổi code mới, một hộp thoại macOS sẽ xuất hiện hỏi bạn:
+  * **[Đồng ý đẩy]**: Lập tức commit và push lên GitHub, đồng thời hiện thông báo đẩy thành công.
+  * **[Để sau]**: Tạm hoãn 3 phút (hoặc cho đến khi bạn sửa thêm code mới) rồi mới nhắc lại, không làm phiền bạn liên tục.
+* **Đồng bộ đa thư mục**: Tự động theo dõi mọi thư mục con trong `LDMega`.
+* **Nhật ký chi tiết**: Mọi thao tác đều được ghi lại trong `sync.log`.
+
+---
+
 ## 📁 Cấu trúc thư mục
 
-* `sync.sh`: Script cốt lõi thực hiện kiểm tra thay đổi, tự động tạo commit chi tiết và push lên branch `main` của GitHub.
+* `sync.sh`: Script cốt lõi kiểm tra thay đổi, bật hộp thoại xác nhận và push code.
 * `auto_sync_daemon.sh`: Vòng lặp chạy nền định kỳ kiểm tra (mặc định mỗi 30 giây).
-* `start.sh`: Bật chế độ tự động đồng bộ chạy ngầm.
-* `stop.sh`: Tắt chế độ tự động đồng bộ chạy ngầm.
+* `start.sh`: Bật chế độ tự động chạy ngầm.
+* `stop.sh`: Tắt chế độ tự động chạy ngầm.
 * `status.sh`: Xem trạng thái tiến trình, các thay đổi đang chờ và lịch sử đồng bộ gần nhất.
-* `sync.log`: File ghi nhận nhật ký các lần đồng bộ (tự động xoay vòng để không làm nặng máy).
+* `sync.log`: File ghi nhận nhật ký các lần đồng bộ.
 * `com.ldmega.autosync.plist`: File cấu hình chạy ngầm tự khởi động cùng macOS (LaunchAgent).
 
 ---
 
-## 🚀 Hướng dẫn sử dụng nhanh
+## 🚀 Các lệnh thường dùng
 
-### 1. Bật tự động đồng bộ chạy nền
 ```bash
-bash AutoSync/start.sh
-```
-Hệ thống sẽ chạy ngầm. Cứ mỗi 30 giây, nếu có bất kỳ file nào thay đổi trong `FolderSyncGGdriver`, `HR`,... hệ thống sẽ tự động commit và push lên GitHub ngay lập tức.
-
-### 2. Kiểm tra trạng thái & xem log
-```bash
+# Xem trạng thái và nhật ký:
 bash AutoSync/status.sh
-```
 
-### 3. Dừng tự động đồng bộ
-```bash
+# Dừng chế độ tự động:
 bash AutoSync/stop.sh
+
+# Bật lại chế độ tự động:
+bash AutoSync/start.sh
+
+# Đẩy code ngay lập tức không cần popup:
+bash AutoSync/sync.sh --no-prompt
 ```
-
-### 4. Đồng bộ ngay lập tức 1 lần thủ công
-```bash
-bash AutoSync/sync.sh
-```
-
----
-
-## 🔄 Tùy chỉnh (dành cho bảo trì riêng)
-Khi muốn sửa logic đồng bộ, bạn chỉ cần sửa file [sync.sh](file:///Users/sontran/Desktop/LDMega/AutoSync/sync.sh) trong thư mục này mà không làm ảnh hưởng đến code của `FolderSyncGGdriver` hay `HR`.
