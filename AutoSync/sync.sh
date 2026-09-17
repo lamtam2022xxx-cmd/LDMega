@@ -45,7 +45,7 @@ CURRENT_HASH=$(echo "$CHANGES" | shasum | awk '{print $1}')
 CURRENT_TIME=$(date +%s)
 
 # Kiểm tra nếu người dùng vừa chọn "Để sau" cho tập thay đổi này và chưa quá 3 phút (180s)
-if [ -f "$SKIP_RECORD" ]; then
+if [ "$1" != "--no-prompt" ] && [ "$1" != "--force" ] && [ -f "$SKIP_RECORD" ]; then
     RECORDED_HASH=$(awk '{print $1}' "$SKIP_RECORD" 2>/dev/null || echo "")
     RECORDED_TIME=$(awk '{print $2}' "$SKIP_RECORD" 2>/dev/null || echo "0")
     TIME_DIFF=$((CURRENT_TIME - RECORDED_TIME))
