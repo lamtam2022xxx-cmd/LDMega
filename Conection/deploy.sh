@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# LDMega - Master Deployment & Connection Dispatcher (deploy.sh)
+# LDMega - Master Deployment & Connection Dispatcher (Conection/deploy.sh)
 # Điều phối đẩy code đến đúng nơi: Google Apps Script, Cloudflare (BE / FE)
 # ==============================================================================
 
@@ -17,8 +17,8 @@ RED="\033[0;31m"
 CYAN="\033[0;36m"
 NC="\033[0m"
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$ROOT_DIR"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 print_header() {
     echo -e "${CYAN}======================================================${NC}"
@@ -28,9 +28,9 @@ print_header() {
 
 deploy_gas() {
     echo -e "${BLUE}▶ Đang chuẩn bị đẩy code lên Google Apps Script (GAS)...${NC}"
-    cd "$ROOT_DIR/Conection/apps_script"
+    cd "$SCRIPT_DIR/apps_script"
     if [ ! -f ".clasp.json" ]; then
-        echo -e "${YELLOW}⚠️ Chưa tìm thấy Conection/apps_script/.clasp.json!${NC}"
+        echo -e "${YELLOW}⚠️ Chưa tìm thấy apps_script/.clasp.json!${NC}"
         echo "Hãy sao chép file .clasp.json.example thành .clasp.json và điền scriptId dự án của bạn."
         exit 1
     fi
@@ -40,32 +40,30 @@ deploy_gas() {
 
 deploy_cf_be() {
     echo -e "${BLUE}▶ Đang chuẩn bị deploy Cloudflare Worker (Backend)...${NC}"
-    cd "$ROOT_DIR/Conection/cloudflare/backend"
+    cd "$SCRIPT_DIR/cloudflare/backend"
     npx wrangler deploy
     echo -e "${GREEN}✅ Đã deploy thành công Cloudflare Worker Backend!${NC}"
 }
 
 deploy_cf_fe() {
     echo -e "${BLUE}▶ Đang chuẩn bị deploy Cloudflare Pages (Frontend)...${NC}"
-    cd "$ROOT_DIR/Conection/cloudflare/frontend"
+    cd "$SCRIPT_DIR/cloudflare/frontend"
     npx wrangler pages deploy public --project-name ldmega-frontend
     echo -e "${GREEN}✅ Đã deploy thành công Cloudflare Pages Frontend!${NC}"
 }
 
 run_tests() {
     echo -e "${BLUE}▶ Đang kiểm tra toàn bộ 5 kết nối trong thư mục Conection...${NC}"
-    python3 "$ROOT_DIR/Conection/test_connections.py"
+    python3 "$SCRIPT_DIR/test_connections.py"
 }
 
 show_status() {
     print_header
-    echo -e "${YELLOW}📍 DANH MỤC THƯ MỤC & ĐIỂM ĐẾN DEPLOY:${NC}"
-    echo -e "  1. [Conection/apps_script/]          -> ${GREEN}Google Apps Script${NC} (doGet, doPost, Drive, Sheets)"
-    echo -e "  2. [Conection/cloudflare/backend/]   -> ${GREEN}Cloudflare Worker${NC} (Edge API, Telegram Webhook, Groq)"
-    echo -e "  3. [Conection/cloudflare/frontend/]  -> ${GREEN}Cloudflare Pages${NC} (Dashboard Web App)"
-    echo -e "  4. [Conection/]                      -> ${GREEN}5 Dịch vụ sẵn sàng${NC} (Groq, Drive, Telegram, CF, GAS)"
-    echo -e "  5. [HR/]                             -> ${GREEN}Module Quản lý Nhân sự${NC}"
-    echo -e "  6. [AutoSync/]                       -> ${GREEN}Tự động đồng bộ Git${NC}"
+    echo -e "${YELLOW}📍 DANH MỤC THƯ MỤC & ĐIỂM ĐẾN DEPLOY TRONG [Conection]:${NC}"
+    echo -e "  1. [apps_script/]          -> ${GREEN}Google Apps Script${NC} (doGet, doPost, Drive, Sheets)"
+    echo -e "  2. [cloudflare/backend/]   -> ${GREEN}Cloudflare Worker${NC} (Edge API, Telegram Webhook, Groq)"
+    echo -e "  3. [cloudflare/frontend/]  -> ${GREEN}Cloudflare Pages${NC} (Dashboard Web App)"
+    echo -e "  4. [groq/, telegram/, ...] -> ${GREEN}Bộ 5 dịch vụ sẵn sàng${NC}"
     echo ""
 }
 
@@ -76,7 +74,7 @@ show_menu() {
     echo -e "  ${GREEN}2)${NC} Deploy Cloudflare Worker (Backend API)"
     echo -e "  ${GREEN}3)${NC} Deploy Cloudflare Pages (Frontend Dashboard)"
     echo -e "  ${GREEN}4)${NC} Deploy CẢ HAI: Cloudflare Backend + Frontend"
-    echo -e "  ${GREEN}5)${NC} Kiểm tra tình trạng 5 dịch vụ kết nối (Conection)"
+    echo -e "  ${GREEN}5)${NC} Kiểm tra tình trạng 5 dịch vụ kết nối (test)"
     echo -e "  ${GREEN}6)${NC} Thoát"
     echo ""
     read -p "Nhập lựa chọn của bạn [1-6]: " choice
@@ -91,7 +89,6 @@ show_menu() {
     esac
 }
 
-# Xử lý theo tham số dòng lệnh
 TARGET="$1"
 case "$TARGET" in
     gas|apps_script)
@@ -119,12 +116,12 @@ case "$TARGET" in
     *)
         echo -e "${RED}Tham số không hợp lệ: $TARGET${NC}"
         echo "Cách sử dụng:"
-        echo "  ./deploy.sh gas        # Đẩy lên Google Apps Script"
-        echo "  ./deploy.sh cf-be      # Đẩy lên Cloudflare Worker (BE)"
-        echo "  ./deploy.sh cf-fe      # Đẩy lên Cloudflare Pages (FE)"
-        echo "  ./deploy.sh cf-all     # Đẩy cả BE và FE Cloudflare"
-        echo "  ./deploy.sh test       # Kiểm tra 5 kết nối trong Conection"
-        echo "  ./deploy.sh status     # Xem bản đồ các thư mục deploy"
+        echo "  bash Conection/deploy.sh gas        # Đẩy lên Google Apps Script"
+        echo "  bash Conection/deploy.sh cf-be      # Đẩy lên Cloudflare Worker (BE)"
+        echo "  bash Conection/deploy.sh cf-fe      # Đẩy lên Cloudflare Pages (FE)"
+        echo "  bash Conection/deploy.sh cf-all     # Đẩy cả BE và FE Cloudflare"
+        echo "  bash Conection/deploy.sh test       # Kiểm tra 5 kết nối trong Conection"
+        echo "  bash Conection/deploy.sh status     # Xem bản đồ các thư mục deploy"
         exit 1
         ;;
 esac
