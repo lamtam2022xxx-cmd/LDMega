@@ -23,9 +23,18 @@ for p in env_paths:
     if p.exists():
         load_dotenv(p)
 
-# 1. ID Thư mục Google Drive mục tiêu (theo yêu cầu mặc định)
+# 1. ID Thư mục Google Drive mục tiêu (theo yêu cầu mặc định: https://drive.google.com/drive/folders/1_gUGMTzYbXbY4qXGJwGl9NTftwaOsG0I)
 DEFAULT_DRIVE_FOLDER_ID = "1_gUGMTzYbXbY4qXGJwGl9NTftwaOsG0I"
-DRIVE_FOLDER_ID = os.getenv("DRIVE_FOLDER_ID", DEFAULT_DRIVE_FOLDER_ID)
+
+# Đọc từ file .env của UpFile nếu có
+upfile_env = UPFILE_DIR / ".env"
+upfile_folder_id = None
+if upfile_env.exists():
+    from dotenv import dotenv_values
+    values = dotenv_values(upfile_env)
+    upfile_folder_id = values.get("DRIVE_FOLDER_ID")
+
+DRIVE_FOLDER_ID = os.getenv("UPFILE_DRIVE_FOLDER_ID") or upfile_folder_id or DEFAULT_DRIVE_FOLDER_ID
 
 # 2. Cấu hình Telegram Bot
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
