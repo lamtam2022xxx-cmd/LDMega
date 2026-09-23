@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LDMega - Cổng Tải Lên Tệp Lên Google Drive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: rgba(79, 70, 229, 0.1);
+      --success: #10b981;
+      --error: #ef4444;
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--primary-light);
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      border-radius: 9999px;
+      color: #818cf8;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .folder-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    .folder-info a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .folder-info a:hover {
+      text-decoration: underline;
+    }
+
+    .dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(15, 23, 42, 0.4);
+      margin-bottom: 20px;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background: rgba(79, 70, 229, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .dropzone-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #818cf8;
+    }
+
+    .dropzone-text {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .dropzone-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .selected-files {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .file-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .file-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 320px;
+      font-weight: 500;
+    }
+
+    .file-size {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .btn-remove {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .btn-remove:hover {
+      color: var(--error);
+    }
+
+    .btn-upload {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-upload:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--primary-hover) 0%, #4f46e5 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-upload:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .progress-bar-container {
+      margin-top: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      height: 8px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #10b981);
+      transition: width 0.3s;
+    }
+
+    .result-list {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-item {
+      padding: 10px 14px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .result-item a {
+      color: #34d399;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .result-item a:hover {
+      text-decoration: underline;
+    }
+
+    .spinner {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 2px solid white;
+      width: 18px;
+      height: 18px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-badge">
+        <span>🚀 LDMega Drive Hub</span>
+      </div>
+      <h1>Tải Lên Tệp Lên Google Drive</h1>
+      <p>Kéo và thả tệp bất kỳ vào ô bên dưới để lưu trữ an toàn vào Google Drive.</p>
+    </div>
+
+    <div class="folder-info">
+      <span>Thư mục đích: <strong>LDMega_Uploads</strong></span>
+      <a href="https://drive.google.com/drive/folders/1_gUGMTzYbXbY4qXGJwGl9NTftwaOsG0I" target="_blank" rel="noopener">
+        Mở Drive ↗
+      </a>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-icon">
+        <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+      </div>
+      <div class="dropzone-text">Nhấp để chọn tệp hoặc kéo thả vào đây</div>
+      <div class="dropzone-sub">Hỗ trợ mọi định dạng (PDF, DOCX, XLSX, Ảnh, Video, ZIP...)</div>
+      <input type="file" id="fileInput" multiple>
+    </div>
+
+    <div class="selected-files" id="fileList"></div>
+
+    <button id="uploadBtn" class="btn-upload" disabled>
+      <span id="btnText">Tải lên Google Drive</span>
+    </button>
+
+    <div class="progress-bar-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="result-list" id="resultList"></div>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const btnText = document.getElementById('btnText');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const resultList = document.getElementById('resultList');
+
+    let selectedFiles = [];
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const files = Array.from(e.dataTransfer.files);
+      addFiles(files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      addFiles(files);
+      fileInput.value = '';
+    });
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function addFiles(files) {
+      files.forEach(f => {
+        if (!selectedFiles.some(sf => sf.name === f.name && sf.size === f.size)) {
+          selectedFiles.push(f);
+        }
+      });
+      renderSelectedFiles();
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      renderSelectedFiles();
+    }
+
+    function renderSelectedFiles() {
+      fileList.innerHTML = '';
+      if (selectedFiles.length === 0) {
+        uploadBtn.disabled = true;
+        btnText.textContent = 'Tải lên Google Drive';
+        return;
+      }
+
+      uploadBtn.disabled = false;
+      btnText.textContent = `Tải lên ${selectedFiles.length} tệp lên Drive`;
+
+      selectedFiles.forEach((file, idx) => {
+        const item = document.createElement('div');
+        item.className = 'file-item';
+        item.innerHTML = `
+          <div class="file-meta">
+            <span class="file-name" title="${file.name}">${file.name}</span>
+            <span class="file-size">(${formatBytes(file.size)})</span>
+          </div>
+          <button class="btn-remove" onclick="removeFile(${idx})">✕</button>
+        `;
+        fileList.appendChild(item);
+      });
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64Data = reader.result.split(',')[1];
+          resolve({
+            name: file.name,
+            type: file.type || 'application/octet-stream',
+            base64: base64Data,
+            size: file.size
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) return;
+
+      uploadBtn.disabled = true;
+      btnText.innerHTML = '<div class="spinner"></div> Đang tải lên Drive...';
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '10%';
+
+      const totalFiles = selectedFiles.length;
+      let completedCount = 0;
+
+      for (let i = 0; i < totalFiles; i++) {
+        const file = selectedFiles[i];
+        try {
+          const fileData = await readFileAsBase64(file);
+          
+          await new Promise((resolve, reject) => {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+              google.script.run
+                .withSuccessHandler((res) => {
+                  if (res && res.success) {
+                    addResultSuccess(res.file);
+                    resolve(res);
+                  } else {
+                    addResultError(file.name, res ? res.error : 'Lỗi không xác định');
+                    resolve(res);
+                  }
+                })
+                .withFailureHandler((err) => {
+                  addResultError(file.name, err.message || err.toString());
+                  resolve();
+                })
+                .uploadFileFromWeb(fileData);
+            } else {
+              // Standalone mock / HTTP POST mode
+              fetch(window.location.href, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'upload_file',
+                  file_name: fileData.name,
+                  mime_type: fileData.type,
+                  base64_data: fileData.base64
+                })
+              })
+              .then(r => r.json())
+              .then(res => {
+                if (res.success) addResultSuccess(res.file);
+                else addResultError(file.name, res.error);
+                resolve(res);
+              })
+              .catch(err => {
+                addResultError(file.name, err.toString());
+                resolve();
+              });
+            }
+          });
+
+        } catch (e) {
+          addResultError(file.name, e.toString());
+        }
+
+        completedCount++;
+        const percent = Math.round((completedCount / totalFiles) * 100);
+        progressBar.style.width = `${percent}%`;
+      }
+
+      selectedFiles = [];
+      renderSelectedFiles();
+      btnText.textContent = 'Hoàn thành tải lên!';
+      setTimeout(() => {
+        btnText.textContent = 'Tải lên Google Drive';
+        progressContainer.style.display = 'none';
+        progressBar.style.width = '0%';
+      }, 3000);
+    });
+
+    function addResultSuccess(file) {
+      const div = document.createElement('div');
+      div.className = 'result-item';
+      div.innerHTML = `
+        <span>✅ <strong>${file.name}</strong></span>
+        <a href="${file.url}" target="_blank" rel="noopener">Xem trên Drive ↗</a>
+      `;
+      resultList.prepend(div);
+    }
+
+    function addResultError(fileName, err) {
+      const div = document.createElement('div');
+      div.className = 'result-item';
+      div.style.background = 'rgba(239, 68, 68, 0.1)';
+      div.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+      div.innerHTML = `
+        <span>❌ <strong>${fileName}</strong>: ${err}</span>
+      `;
+      resultList.prepend(div);
+    }
+  </script>
+</body>
+</html>
