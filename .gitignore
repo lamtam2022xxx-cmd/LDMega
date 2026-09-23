@@ -3,6 +3,8 @@
 **/*.json
 !**/package.json
 !**/tsconfig.json
+!**/appsscript.json
+!**/.clasp.json.example
 token.pickle
 token.json
 **/.env
