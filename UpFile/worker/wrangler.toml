@@ -1,0 +1,24 @@
+{
+  "name": "ldmega-upload-worker",
+  "main": "src/index.js",
+  "compatibility_date": "2024-09-01",
+  "workers_dev": true,
+  "node_compat": false,
+
+  "vars": {
+    "ROOT_FOLDER_ID": "1_gUGMTzYbXbY4qXGJwGl9NTftwaOsG0I",
+    "FOLDER_DR":   "12S3Bxy88t-d3wW7ZgbgG-Kk4ugvoBB3k",
+    "FOLDER_HR":   "1qStyvzjuajoqutJNq2nVEk2YhdkS4MCb",
+    "FOLDER_ACC":  "18ooykF5kTRNsM9i4ojeJtaksR5MCZ7s-",
+    "FOLDER_ASSET":"1DaVefTGpptuekpGFoedf8HLbOTqPP_72",
+    "FOLDER_SALE": "11m6vWiR-xBeCFPCwUxwdqhInxzbUD9f2",
+    "FOLDER_MKT":  "1B1PbZiNEHqaxzkJxZbibUCZzKgXMElxk",
+    "FOLDER_TASK": "1ErnT6mRe2hJplIyx5xYz8tt5tdbNObY8",
+    "FOLDER_BOD":  "15OEUPdY46nHdl51if-UhJNX9QmRXQd8R",
+    "SPREADSHEET_ID": "1nLqh8PR37kUYqiRL2ITRuG6GWhCh2udQs-lNeAkSUuw",
+    "SHEET_UPLOAD_TAB": "UPload",
+    "SHEET_LOG_TAB": "Upload_Log",
+    "ALLOWED_ORIGINS": "http://localhost:5173",
+    "RATE_LIMIT_RPM": "30"
+  }
+}
